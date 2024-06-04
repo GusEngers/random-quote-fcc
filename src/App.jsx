@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getQuoteAction } from './global-store/actions';
 
 function App() {
+  const { quote, loading, error } = useSelector((state) => state);
   const dispatch = useDispatch();
+  const generateTweet = (content, author) => `https://twitter.com/intent/tweet?text="${content}" - ${author}`;
 
   useEffect(() => {
     dispatch(getQuoteAction());
@@ -11,14 +13,33 @@ function App() {
 
   return (
     <div id='quote-box'>
-      <p id="text">Hola</p>
-      <p id="author">Autor</p>
-      <button id="new-quote">NEW QUOTE</button>
-      <a 
-        href="https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=%22Few%20things%20can%20help%20an%20individual%20more%20than%20to%20place%20responsibility%20on%20him%2C%20and%20to%20let%20him%20know%20that%20you%20trust%20him.%22%20Booker%20T.%20Washington"
-        id="tweet-quote"
-        target='_blank'
-        >Twee</a>
+      {error ? (
+        <>
+          <p id='error'>{error}</p>
+          <button
+            id='new-quote'
+            onClick={() => {
+              dispatch(getQuoteAction());
+            }}>
+            NEW QUOTE
+          </button>
+        </>
+      ) : (
+        <>
+          <p id='text'>{loading ? '' : quote.content}</p>
+          <p id='author'>{loading ? '' : quote.author}</p>
+          <button
+            id='new-quote'
+            onClick={() => {
+              dispatch(getQuoteAction());
+            }}>
+            NEW QUOTE
+          </button>
+          <a href={loading ? '#' : generateTweet(quote.content, quote.author)} id='tweet-quote' target='_blank'>
+            Tweet
+          </a>
+        </>
+      )}
     </div>
   );
 }
